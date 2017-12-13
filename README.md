@@ -1,4 +1,4 @@
-# Customizing the IBM Analytics Engines from a command line
+# Creating and customizing the IBM Analytics Engines from a command line
 
 The goal of this sample is to help you understand the mechanics of deploying an instance of IAE with customization for your purpose. many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. 
 
