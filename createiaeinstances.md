@@ -211,17 +211,15 @@ The configuration we are using for the custom instance creation is [cluster-cust
         "script": {
             "source_type": "https",
             "source_props": {
-                "username": "dummy",
-                "password": "dummy"
+                "username": "",
+                "password": ""
             },
-            "script_path": "https://raw.github.ibm.com/shussey/iae-create-from-cli/master/bootstrap.sh"
+            "script_path": "https://raw.githubusercontent.com/shusseyIBM/iae-cli-create/master/bootstrap.sh"
         },
         "script_params": []
     }]
 }
 ```
-
-Original URL "https://git.ng.bluemix.net/chris.snow/iae-spark-package-customization-example/master/bootstrap.sh"
 
 Notice the customization "script" section points to a web location ( In the default case, to a file in this git project ). The script must be in a location the cluster nodes can access themselves as they start. You cannot store this file on your local machine. There are multiple options for where it can be stored described in the documentation section titled [Location of the customization script](https://console.bluemix.net/docs/services/AnalyticsEngine/customizing-cluster.html#customizing-a-cluster)
 
@@ -291,7 +289,7 @@ As with any script there are many potential failure points. Failing to download 
 
 While connected via ssh you can try using `wget` with the url to your bootstrap.sh to check the location is reacheable from the cluster nodes. This is also a quick way to get the file onto a node so you can run it maunally if you want to make changes or enhancments for your purposes.
 
-## Using the instance from a local Jupyter instance
+## Using the custom IAE cluster from a local Jupyter instance
 
 Finally, the real test for our purposes is to try the new functionality. 
 
