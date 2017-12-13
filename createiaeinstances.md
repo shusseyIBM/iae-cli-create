@@ -178,6 +178,8 @@ Deleting service iae-simple-cluster in org jdoe123@us.ibm.com / space dev as jdo
 OK
 ```
 
+## Command summary
+
 In summary, here are the commands that cover the full service lifecycle for our simple cluster
 
 ```
@@ -233,17 +235,82 @@ bx cf create-service IBMAnalyticsEngine standard-hourly iae-custom-cluster -c ./
 
 If you do not have access to an account that can be billed for services, you can revert to 'lite' for the plan.
 
-Monitor the creation as before using `bx cf service iae-custom-cluster`
+## Did the customization work?
 
-To check that avro was installed, you can verify that the 
+Monitor the creation of the cluster as before using `bx cf service iae-custom-cluster` . 
 
-Connect to the cluster using the ssh command from the credentials response. The password is also included.
+The custom bootstrap.sh will be executed AFTER the cluster creation succeeds. So depending on your customization execution time, you may have to wait some additional time before you can effectively use the cluster. The Dashboard will visaully show the status of "Customizing" while this is still pending.
 
-Change directory to the destination folder from our customization script
+Debugging your customization if needed requires additional steps. 
+
+To monitor the customization jobs directly you can use the `curl` commands described [here](https://console.stage1.bluemix.net/docs/services/AnalyticsEngine/customizing-cluster.html#getting-cluster-status) . 
+
+You can also see references to log files for the jobs in the documentation. As a shortcut you can connect to the cluster using the `ssh` command  and password from the `bx cf service-key` response. Look for the log in the `/var/log` folder. The log filename will be similar in format to `chs-cvu-690-mn003.bi.services.us-south.bluemix.net_8997.log`. E.g.:-
 
 ```
-cd /home/common/lib/scala/spark2/
+ssh clsadmin@chs-cvu-690-mn003.bi.services.us-south.bluemix.net
+
+The authenticity of host 'chs-cvu-690-mn003.bi.services.us-south.bluemix.net (169.60.137.171)' can't be established.
+ECDSA key fingerprint is SHA256:5dITfzFQIP9ZvKqJwsE582IlHRbFzPM+jq7dvipJ6oc.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'chs-cvu-690-mn003.bi.services.us-south.bluemix.net,169.60.137.171' (ECDSA) to the list of known hosts.
+clsadmin@chs-cvu-690-mn003.bi.services.us-south.bluemix.net's password: 
+Last login: Wed Dec 13 19:58:14 2017
+
+[clsadmin@chs-cvu-690-mn003 ~]$ cd /var/log
+
+[clsadmin@chs-cvu-690-mn003 log]$ ls
+ambari-agent                                                 hive2
+ambari-metrics-collector                                     hive-hcatalog
+ambari-metrics-monitor                                       jnbg
+ambari-server                                                journal
+btmp                                                         knox
+cdslogging_install-configure.log                             lastlog
+chs-cvu-690-mn003.bi.services.us-south.bluemix.net_8997.log  livy2
+collectd                                                     lost+found
+collectd.log                                                 oozie
+cups                                                         spark
+falcon                                                       spark2
+flume                                                        sqoop
+hadoop                                                       sssd
+hadoop-hdfs                                                  webhcat
+hadoop-mapreduce                                             wtmp
+hadoop-yarn                                                  yum.log
+hbase                                                        zookeeper
+hive
+
 ```
+
+A command like `more chs-cvu-690-mn003.bi.services.us-south.bluemix.net_8997.log` will let you page through the log.
+
+While there, since our bootstrap is adding the Avro jar files to the  `/home/common/lib/scala/spark2/` folder, you can navigate there and look to ensure the contents is as expected. Since the script ran as the user `clsadmin` you can tell using `ls -l` which files were added by it.
+
+Note: the ssh url returned by the `bx cf service-key` command will be to one of the management nodes in the cluster. If you want to examine other nodes, to perform diagnosis on a compute node for example, browse to the Dashboad and expand the Nodes list to see the other hostnames. All management nodes can be connected to directly from your workstation. If you need to connect to a compute node, you can only do this if you are already ssh connected to a master node as they have no public IP address.
+
+As with any script there are many potential failure points. Failing to download it from the location you chose to host your boostrap.sh is an issue I encountered while creating this tutorial. 
+
+While connected via ssh you can try using `wget` with the url to your bootstrap.sh to check the location is reacheable from the cluster nodes. This is also a quick way to get the file onto a node so you can run it maunally if you want to make changes or enhancments for your purposes.
+
+## Using the instance from a local Jupyter instance
+
+Finally, the real test for our purposes is to try the new functionality. 
+
+Make sure your cluster is finished creating and customizing. Use the `bx cf create-service-key` command to create the credentials and then `bx cf service-key` to retrieve them. Copy the portion response starting and ending with `{ ... }` and replace the contents of `vcap.json` in this project.
+
+Now, if you have Docker installed on your client, use the `./run_docker_notebook.sh` command to initialize a Jupyter instance on your workstation. It will read the file you just updated and connect the instance to your customized cluster in the IBM Cloud. 
+
+Copy the localhost URL and launch it in a browser. You will find a notebook `avro_test` already loaded. Open that notebook and select `Cell->Run All` . If the result is as follows, you know that Avro was used to retrieve the data
+
+```
++----------+--------------------+----------+
+|  username|               tweet| timestamp|
++----------+--------------------+----------+
+|    miguno|Rock: Nerf paper,...|1366150681|
+|BlizzardCS|Works as intended...|1366154481|
++----------+--------------------+----------+
+```
+
+## Command summary
 
 For quick reuse, these are the commands required for the full lifecycle of our custom cluster
 
@@ -254,7 +321,6 @@ bx cf create-service-key iae-custom-cluster Credentials1 -c {}
 bx cf service-key iae-custom-cluster Credentials1
 bx cf delete-service-key iae-custom-cluster Credentials1 -f
 bx cf delete-service iae-custom-cluster -f
-
 ```
 
 ## Dynamic use of bootstrap.sh
