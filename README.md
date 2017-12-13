@@ -1,8 +1,10 @@
 # Creating and customizing the IBM Analytics Engines from a command line
 
-The goal of this sample is to help you understand the mechanics of deploying an instance of IAE with customization for your purpose. many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. 
+The goal of this sample is to help you understand the mechanics of deploying an instance of IAE with customization for your purpose. Many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. 
 
-However, there are situations where the manageability of these addons needs to be baked into a foundation regardless of what application or experience is using the engine. The methods described here allow you not only to modify an indivitual cluster but to deliver a repeatable baseline configuration across multiple clusters. It is also useful if you want to tear down a cluster between uses and rebuild it when workloads return.
+However, there are situations where changes and additions need to be baked into a foundation regardless of what application or experience is using the engine. The methods described here allow you not only to modify an indivitual clusters but to deliver a repeatable baseline configuration across multiple clusters. 
+
+It is also useful if you want to tear down a cluster between uses and rebuild it when workloads return with exactly the same capabilities and configurations.
 
 ## Your IBM Cloud organization
 
@@ -25,3 +27,6 @@ Follow the instructions [here](ibmcloudlogin.md) to set up your workstation, log
 ## Creating standard and custom IAE clusters
 
 Once you are connected [this tutorial](createiaeinstances.md) will guide you through the steps to create repeatable IAE instances using the IBM Cloud Command Line Interface and through it, the Cloud Foundry CLI. 
+
+## Contact
+Stephen Hussey, IBM, shussey@us.ibm.com
