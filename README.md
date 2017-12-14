@@ -1,10 +1,10 @@
 # Creating and customizing the IBM Analytics Engines from a command line
 
-The goal of this tutorial is to help you understand the mechanics of deploying an instance of IAE with customization for your purpose. Many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. 
+The goal of this tutorial is to help you understand the mechanics of deploying an instance of IAE with customization for your purposes using the IBM Cloud command line. 
 
-However, there are situations where changes and additions need to be baked into a foundation regardless of what application or experience is using the engine. The methods described here allow you not only to modify an indivitual clusters but to deliver a repeatable baseline configuration across multiple clusters. 
+Once you complete the tutorial, you will be familliar with the steps to create new clusters, validate customizations are applied, diagnose them if needed and delete them when done. Although you will have all the commands needed to manage custom cluster lifecycle, this tutorial does not address automating cluster creation.
 
-It is also useful if you want to tear down a cluster between uses and rebuild it when workloads return with exactly the same capabilities and configurations.
+Many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. However, there are situations where changes and additions need to be baked into a foundation regardless of what application or experience is using the engine. The methods described here allow you not only to modify an indivitual clusters but to create a repeatable baseline configuration across multiple clusters that will allow you to tear down a cluster between uses and rebuild it when workloads return with exactly the same capabilities and configurations.
 
 ## Your IBM Cloud organization
 
