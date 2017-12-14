@@ -194,7 +194,7 @@ bx cf delete-service iae-simple-cluster -f
 
 ## Create a customized IAE instance
 
-The specific customization that we are applying in this example is to add [Avro](https://github.com/databricks/spark-avro) to our Spark cluster. The bootstrap.sh script is executed on all nodes. If you take a look logic of bootstrap.sh you will see that although the Avro install runs on all nodes, the management node performs an additional services restart command. This ensures that the cluster adopts the new module correctly. It will, however, extend the cluster initialization time given that there are a couple of `sleep` commands to allow the restart to complete. 
+The specific customization that we are applying in this example is to add [Avro](https://github.com/databricks/spark-avro) to our Spark cluster. The [bootstrap.sh](./bootstrap.sh) script is executed on all nodes. If you take a look at the logic of bootstrap.sh you will see that although the Avro install runs on all nodes, the management node performs an additional services restart command. This ensures that the cluster adopts the new module correctly. It will, however, extend the cluster initialization time given that there are a couple of `sleep` commands to allow the restart to complete. 
 
 NOTE: Although the `cf service` response will indicate "create succeeded", the customization is triggered after this point. From the dashboard you will see a status of "Customizing" while this is happening and when complete it will show "Active".
 
