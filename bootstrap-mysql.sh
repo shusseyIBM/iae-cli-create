@@ -12,10 +12,15 @@ DB_PWD=$2
 DB_NAME=$3
 DB_CXN_URL="jdbc:mysql://"$4":"$5"?createDatabaseIfNotExist=true"
 
-if [ "x$NODE_TYPE" == "xmanagement" ]
+echo "MySQL User: "$DB_USER_NAME
+echo "MySQL DB Name: "$DB_NAME
+echo "MySQL URL: "$DB_CXN_URL
+
+# if [ "x$NODE_TYPE" == "xmanagement" ]
+if [ "x$NODE_TYPE" == "xmaster-management" ]
 then
 
-    echo "Node type is xmanagement hence updating ambari properties"
+    echo "Node type is xmaster-management hence updating ambari properties"
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST  $CLUSTER_NAME hive-site "javax.jdo.option.ConnectionURL" $DB_CXN_URL /var/lib/ambari-server/resources/scripts/configs
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST  $CLUSTER_NAME hive-site "javax.jdo.option.ConnectionUserName" $DB_USER_NAME
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST  $CLUSTER_NAME hive-site "javax.jdo.option.ConnectionPassword" $DB_PWD
