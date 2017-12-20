@@ -19,7 +19,7 @@ echo "MySQL URL: "$DB_CXN_URL
 echo "NODE_TYPE: "$NODE_TYPE1
 
 # if [ "x$NODE_TYPE" == "xmanagement" ]
-if [ "x$NODE_TYPE" == "management-slave2" ]
+if [ "x$NODE_TYPE" == "xmanagement-slave2" ]
 then
 
     echo "Node type is xmaster-management hence updating ambari properties"
