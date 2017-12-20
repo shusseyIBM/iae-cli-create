@@ -16,6 +16,8 @@ echo "MySQL User: "$DB_USER_NAME
 echo "MySQL DB Name: "$DB_NAME
 echo "MySQL URL: "$DB_CXN_URL
 
+echo "NODE_TYPE: "$NODE_TYPE
+
 # if [ "x$NODE_TYPE" == "xmanagement" ]
 if [ "x$NODE_TYPE" == "xmaster-management" ]
 then
