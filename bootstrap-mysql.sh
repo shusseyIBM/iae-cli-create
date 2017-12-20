@@ -16,10 +16,10 @@ echo "MySQL User: "$DB_USER_NAME
 echo "MySQL DB Name: "$DB_NAME
 echo "MySQL URL: "$DB_CXN_URL
 
-echo "NODE_TYPE: "$NODE_TYPE
+echo "NODE_TYPE: "$NODE_TYPE1
 
 # if [ "x$NODE_TYPE" == "xmanagement" ]
-if [ "x$NODE_TYPE" == "xmaster-management" ]
+if [ "x$NODE_TYPE" == "management-slave2" ]
 then
 
     echo "Node type is xmaster-management hence updating ambari properties"
