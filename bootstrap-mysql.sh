@@ -21,7 +21,7 @@ echo "MySQL HOST: $DB_CXN_URL_HOST"
 echo "MySQL PORT: $DB_CXN_URL_PORT"
 echo "MySQL URL: $DB_CXN_URL"
 
-echo "NODE_TYPE: "$NODE_TYPE1
+echo "NODE_TYPE: $NODE_TYPE"
 
 # NODE_TYPE options are data, management-slave1, or manangement-slave2
 

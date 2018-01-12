@@ -54,13 +54,13 @@ becomes
 
 You will notice, however that in the full example above, the third parameter is `hive` rather than `compose`. 
 
-When you create a Compose MySQL instance, the compose schema is created for you. It is a good idea, however, to create a fresh schema in the instance for Hive use. You could also use the MySQL instance for more than one cluster but with different schemas if you wish. In that case you would alter the schema value for each unique cluster.
+When you create a Compose MySQL instance, the `compose` schema is created for you. It is a good idea, however, to create a fresh schema in the instance for Hive use. You could also use the MySQL instance for more than one cluster but with different schemas if you wish. In that case you would alter the schema value for each unique cluster.
 You do not need to do anything besides setting this value to create each schema in the instance. The bootstrap script includes an option `?createDatabaseIfNotExist=true` that will take care of this for you.
 
 So if you use this recommendation your parameters will look like this
 
 ```
-"script_params": ["admin", "ZCBWXXXXXXMJET", "compose", "sl-us-south-1-portal.13.dblayer.com", "32023"]
+"script_params": ["admin", "ZCBWXXXXXXMJET", "hive", "sl-us-south-1-portal.13.dblayer.com", "32023"]
 ```
 
 # [bootstrap-mysql.sh](./bootstrap-mysql.sh)
