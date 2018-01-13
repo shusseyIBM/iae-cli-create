@@ -6,17 +6,30 @@
 # Helper functions for service restart
 
 function stopWait(){
+
+  echo "Stopping $1"
+
   curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d  \
     '{"RequestInfo": {"context": "Stop '"$1"' via REST"}, "ServiceInfo": {"state":"INSTALLED"}}' \
     https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1
+
+  echo "Waiting for $1 to stop"
   wait $1 "INSTALLED"
+  echo "Finished waiting for $1"
+
 }
 
 function startWait(){
+
+  echo "Starting $1"
+
   curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d  \
     '{"RequestInfo": {"context" :"Start '"$1"' via REST"}, "Body": {"ServiceInfo": {"state": "STARTED"}}}' \
     https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1
+  
+  echo "Waiting for $1 to start"
   wait $1 "STARTED"
+  echo "Finished waiting for $1"
 }
 
 
@@ -57,7 +70,7 @@ echo "NODE_TYPE: $NODE_TYPE"
 if [ "x$NODE_TYPE" == "xmanagement-slave2" ]
 then
 
-    echo "Node type is xmanagement-slave2 hence updating ambari properties"
+    echo "******* Node type is xmanagement-slave2 hence updating ambari properties"
     
     echo "javax.jdo.option.ConnectionURL = $DB_CXN_URL"
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST  $CLUSTER_NAME hive-site "javax.jdo.option.ConnectionURL" $DB_CXN_URL
@@ -71,18 +84,18 @@ then
     echo "ambari.hive.db.schema.name = $DB_NAME"
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST $CLUSTER_NAME hive-site "ambari.hive.db.schema.name" $DB_NAME
 
-    echo "Stop Services"
+    echo "******* Stop Services"
     stopWait HIVE 
 
     # curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d '{"RequestInfo": {"context": "Stop All Services via REST"}, "ServiceInfo": {"state":"INSTALLED"}}' https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services
     # sleep 100
 
-    echo "Start Services"
+    echo "******* Start Services"
 
     startWait HIVE
 
     #curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d '{"RequestInfo": {"context": "Start All Services via REST"}, "ServiceInfo": {"state":"STARTED"}}' https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services
     # sleep 700
 
-    echo "Completed customization"
+    echo "******* Completed customization"
 fi
