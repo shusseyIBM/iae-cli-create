@@ -8,6 +8,8 @@
 function stopWait(){
 
   echo "Stopping $1"
+  echo "credentials $AMBARI_USER:$AMBARI_PASSWORD"
+  echo "url https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1"
 
   curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d  \
     '{"RequestInfo": {"context": "Stop '"$1"' via REST"}, "ServiceInfo": {"state":"INSTALLED"}}' \
@@ -22,7 +24,9 @@ function stopWait(){
 function startWait(){
 
   echo "Starting $1"
-
+  echo "credentials $AMBARI_USER:$AMBARI_PASSWORD"
+  echo "url https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1"
+  
   curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d  \
     '{"RequestInfo": {"context" :"Start '"$1"' via REST"}, "Body": {"ServiceInfo": {"state": "STARTED"}}}' \
     https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1
