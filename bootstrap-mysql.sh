@@ -26,7 +26,7 @@ function startWait(){
   echo "Starting $1"
   echo "credentials $AMBARI_USER:$AMBARI_PASSWORD"
   echo "url https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1"
-  
+
   curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d  \
     '{"RequestInfo": {"context" :"Start '"$1"' via REST"}, "Body": {"ServiceInfo": {"state": "STARTED"}}}' \
     https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1
@@ -41,7 +41,7 @@ function wait(){
   finished=0
   while [ $finished -ne 1 ]
   do
-    str=$(curl -s -u $AMBARI_USER:$AMBARI_PASSWORD http://{$AMBARI_HOST:$AMBARI_PORT}/api/v1/clusters/$CLUSTER_NAME/services/$1)
+    str=$(curl -s -u $AMBARI_USER:$AMBARI_PASSWORD https://{$AMBARI_HOST:$AMBARI_PORT}/api/v1/clusters/$CLUSTER_NAME/services/$1)
     if [[ $str == *"$2"* ]] || [[ $str == *"Service not found"* ]] 
     then
       finished=1

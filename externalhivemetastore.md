@@ -2,7 +2,9 @@
 
 Formal documentation for this topic can be found [here](https://console.bluemix.net/docs/services/AnalyticsEngine/working-with-hive.html#working-with-hive) 
 
-As with other customizations in this tutorial there are two elements. The cluster configuration json and the bootstrap script. To ensure that the bootstrap does not need to be modified for each use, I have parameterized the MySQL database connection parameters. This moved the specification of those values to the json which, when used, will be local to the user running the command line. This makes changes simpler and more manageable.
+As with other customizations in this tutorial there are two elements. The cluster configuration json and the bootstrap script. To ensure that the bootstrap does not need to be modified for each use, 
+
+I have parameterized the MySQL database connection parameters. This moved the specification of those values to the json which, when used, will be local to the user running the command line. This makes changes simpler and more manageable. It also has the added benefit that credentials dont get stored in a URL addressable file that could present security concerns.
 
 
 # [cluster-custom-mysql.json](./cluster-custom-mysql.json)
