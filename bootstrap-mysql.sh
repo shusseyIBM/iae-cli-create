@@ -3,7 +3,7 @@
 # Function that stops the specified Ambari managed service
 function ambariServiceStateChange(){
 
-targetState = ""
+targetState=""
 
   if [ $2 == "START" ]
   then
@@ -104,7 +104,7 @@ then
 
     echo "******* Restart HIVE Services"
     ambariServiceStateChange "HIVE" "STOP"
-    sleep 10 # Sometimes if you start again too quickly after a stop, it wont work. This sleep is a workaround.
+    sleep 60 # Sometimes if you start again too quickly after a stop, it wont work. This sleep is a workaround.
     ambariServiceStateChange "HIVE" "START"
     
     echo "******* Completed customization"
