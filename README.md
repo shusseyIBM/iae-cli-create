@@ -26,7 +26,13 @@ Follow the instructions [here](ibmcloudlogin.md) to set up your workstation, log
 
 ## Creating standard and custom IAE clusters
 
-Once you are connected [this tutorial](createiaeinstances.md) will guide you through the steps to create repeatable IAE instances using the IBM Cloud Command Line Interface and through it, the Cloud Foundry CLI. 
+Once you are connected [this tutorial](createiaeinstances.md) will guide you through the steps to create repeatable IAE instances using the IBM Cloud Command Line Interface and through it, the Cloud Foundry CLI.
+
+Now you know the basics you can try different customizations
+
+[Create a custom IAE instance with Avro](createiaeinstancescustomavro.md)
+
+[Create a custom IAE instance using a Compose MySQL instance for an IAE cluster Hive Metastore](externalhivemetastore.md)
 
 ## Contact
 Stephen Hussey, IBM, shussey@us.ibm.com

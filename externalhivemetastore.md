@@ -72,7 +72,7 @@ So if you use this recommendation your parameters will look like this
 
 To make the change to the cluster after it has been created, you have to go through Ambari. The first step is to change the neccesary parameters. Then you stop and start the services. 
 
-Since we are setting these parameters using Ambari commands, it is not critical which node management of the cluster they run on but they should only run on one node not all of them. For our purposes we have selected them to run on "management-slave2" with the statement `if [ "x$NODE_TYPE" == "xmanagement-slave2" ]` . The simple reason for this is that, if you use the ssh url from the cluster credentials to connect, this is the node you connect to. Therefore the /var/log on this node will contain the bootstrap script log if you need to debug it.
+Since we are setting these parameters using Ambari commands, it is not critical which node of the cluster they run on but they should only run on one node not all of them. For our purposes we have selected them to run on "management-slave2" with the statement `if [ "x$NODE_TYPE" == "xmanagement-slave2" ]` . The simple reason for this is that, if you use the ssh url from the cluster credentials to connect, this is the node you connect to. Therefore the /var/log on this node will contain the bootstrap script log if you need to debug it.
 
 ## The Ambari parameters
 
