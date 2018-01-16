@@ -1,8 +1,9 @@
+# Helper functions for service restart
 
 # Function that stops the specified Ambari managed service
 function ambariServiceStateChange(){
 
-targetState = ""
+targetState=""
 
   if [ $2 == "START" ]
   then
@@ -60,27 +61,34 @@ function waitforservicechange(){
   done
 }
 
+function dependcy(){
+  targetService=$1 # Which service name are we monitoring the state of
+
+  curlCommand="curl -s -u $AMBARI_USER:$AMBARI_PASSWORD https://{$AMBARI_HOST:$AMBARI_PORT}/api/v1/stacks/HDP/versions/2.6/services/HIVE"
+  
+  str=$($curlCommand)
+
+  echo "response = $str"
+   
+}
+
+# End of helper functions
+
+
 
 AMBARI_USER="clsadmin"
-AMBARI_PASSWORD="W7Xi3kH9tBx5"
-AMBARI_HOST="chs-zdn-156-mn001.bi.services.us-south.bluemix.net"
+AMBARI_PASSWORD="WOj89iz2Pk3x"
+AMBARI_HOST="chs-pxv-079-mn003.bi.services.us-south.bluemix.net"
 AMBARI_PORT="9443"
 CLUSTER_NAME="AnalyticsEngine"
 
+dependcy
 
-# wait "HIVE" "INSTALLED"
+# ambariServiceStateChange "OOZIE" "STOP"
+# ambariServiceStateChange "HIVE" "STOP"
 
-# stopWait "HIVE"
+# sleep 60
+# ambariServiceStateChange "HIVE" "START"
+# ambariServiceStateChange "OOZIE" "START"
 
 
-# sleep 5
-
-# stopWait "HIVE"
-ambariServiceStateChange "HIVE" "STOP"
-
-sleep 10 # Sometimes if you start again too quickly after a stop, it wont work. This sleep is a workaround.
-
-# startWait "HIVE"
-ambariServiceStateChange "HIVE" "START"
-
-# newwait HIVE started

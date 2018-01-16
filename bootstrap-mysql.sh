@@ -103,9 +103,14 @@ then
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST $CLUSTER_NAME hive-site "ambari.hive.db.schema.name" $DB_NAME
 
     echo "******* Restart HIVE Services"
+
+    ambariServiceStateChange "OOZIE" "STOP"
     ambariServiceStateChange "HIVE" "STOP"
+    
     sleep 60 # Sometimes if you start again too quickly after a stop, it wont work. This sleep is a workaround.
+    
     ambariServiceStateChange "HIVE" "START"
+    ambariServiceStateChange "OOZIE" "START"
     
     echo "******* Completed customization"
 fi
