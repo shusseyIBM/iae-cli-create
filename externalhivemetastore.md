@@ -108,3 +108,21 @@ If your cluster stays in the Customizing state, you will have to connect to the 
 ```
 /var/log/chs-pxv-079-mn003.bi.services.us-south.bluemix.net_12756.log
 ```
+
+## Creating the cluster
+
+Now we have the configuration file and the script it references we construct the `bx cf create-service IBMAnalyticsEngine ...` command
+
+If we use the `standard-hourly` plan, name the cluster `iae-custom-cluster-mysql` and choose configuration `cluster-custom-mysql.json` the complete command would be :-
+
+```
+bx cf create-service IBMAnalyticsEngine standard-hourly iae-custom-cluster-mysql -c ./cluster-custom-mysql.json
+```
+
+Refer to the Avro example for methods to monitor the creation progress. 
+
+## Verifying Hive metastore customization worked
+
+The simplest way to check if all is good is to log in to the Ambari console. Go to the IBM Cloud console to Manage your instance and launch Ambari. Once you connect you will see the health status of the cluster and any alerts requiring your attention. 
+
+To use HIVE and through it, the HIVE Metastore, mouse over the 3x3 matrix icon in the top right of the page next to the clsadmin user name. Select either Hive View or Hive View 2.0 to excercise Hive.
