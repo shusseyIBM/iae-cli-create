@@ -165,7 +165,7 @@ If you created credentials in the previous section, you will need to delete them
 bx cf delete-service-key iae-simple-cluster Credentials1 -f
 ```
 
-The `-f` option turns of the need to confirm the deletion so you can script it without prompts.
+The `-f` option turns off the need to confirm the deletion so you can script it without prompts.
 
 Now you have cleaned up, the cluster deletion command is simple. 
 

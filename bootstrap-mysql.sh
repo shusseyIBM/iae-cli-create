@@ -1,65 +1,163 @@
 # Helper functions for service restart
 
-# Function that stops the specified Ambari managed service
-function ambariServiceStateChange(){
+function stopAllServices(){
 
-targetState=""
+  response=$(curl -s --user $AMBARI_USER:$AMBARI_PASSWORD -X PUT \
+   https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services \
+  -H 'Cache-Control: no-cache' \
+  -H 'X-Requested-By: ambari' \
+  -d '{
+	"RequestInfo": {
+		"context": "Stop All Services via REST"
+		},
+	"ServiceInfo": {
+		"state":"INSTALLED"
+		}
+}'
+)
 
-  if [ $2 == "START" ]
-  then
-   targetState="STARTED"
-   
-  fi
-  
-  if [ $2 == "STOP" ]
-  then
-   targetState="INSTALLED"
-  fi
+# echo "stopAllServices: $?"
+}
 
-  echo "Requesting $1 to $2"
-  curl -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d  \
-    '{"RequestInfo": {"context": "Stop '"$1"' via REST"}, "ServiceInfo": {"state":"'$targetState'"}}' \
-    https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services/$1
 
-  echo "Waiting for $1 to change to $targetState state"
-  waitforservicechange $1 $targetState
-  echo "Finished waiting for $1"
+function startAllServices(){
+
+  response=$(curl -s --user $AMBARI_USER:$AMBARI_PASSWORD -X PUT \
+   https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services \
+  -H 'Cache-Control: no-cache' \
+  -H 'X-Requested-By: ambari' \
+  -d '{
+	"RequestInfo": {
+		"context": "Start All Services via REST"
+		},
+	"ServiceInfo": {
+		"state":"STARTED"
+		}
+}'
+)
+
+# echo "startAllServices: $?"
 
 }
 
-# Function that waits for the specified service to reach the specified state
-function waitforservicechange(){
-  targetService=$1 # Which service name are we monitoring the state of
-  targetState=$2 # The target state of the service we are monitoring
-  responseStatusProperty="state" # The property name in the service response that shows its status
-  propertyValueElement="1" # For multi value properties, this is the element number we want
+function requestStatus(){
 
-  echo "Target service state = $targetState"
+  response=$(curl -s --user $AMBARI_USER:$AMBARI_PASSWORD -X GET \
+  https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/requests/$1?fields=Requests/request_status \
+  -H 'Cache-Control: no-cache'
+  )
 
-  curlCommand="curl -s -u $AMBARI_USER:$AMBARI_PASSWORD https://{$AMBARI_HOST:$AMBARI_PORT}/api/v1/clusters/$CLUSTER_NAME/services/$targetService"
+ #  echo "requestStatus: $?"
+}
+
+
+extractJSONPropertvalue(){
+  propertyValueElement="1"
   
-  finished=0
+  extractedJSONPropertvalue=$(echo $response | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/\042'$1'\042/){print $(i+1)}}}' | tr -d '"' | sed -n ${propertyValueElement}p )
+  echo "$1 = $extractedJSONPropertvalue"
+}
+
+
+function ambariStopAll(){
+
+# Since there are a few ways for this to fail that might not be trapped, the default status is set to FAILED
+ambariStopAllStatus="FAILED"
+
+
+echo "Stopping all services"
+stopAllServices
+
+# Check if the action was accepted
+extractJSONPropertvalue "status"
+stopStatus=$extractedJSONPropertvalue
+
+# If it was accepted get the ID of the async request
+extractJSONPropertvalue "id"
+requestId="$extractedJSONPropertvalue"
+
+finished=0
+echo "Checking status of request: $requestId"
   while [ $finished -ne 1 ]
   do
     
-    str=$($curlCommand | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/\042'$responseStatusProperty'\042/){print $(i+1)}}}' | tr -d '"' | sed -n ${propertyValueElement}p )
+  # Using the ID ge the request details
+  requestStatus $requestId
 
-    echo "Sevice Status = $str"
-    
-    if [ $str == "$targetState" ] 
+  # Extract the status from the request details. This is what we would monitor until done. Loop requestStatus while this is "IN_PROGRESS"
+  extractJSONPropertvalue "request_status"
+  requestCompleted="$extractedJSONPropertvalue"
+
+    # Possible values COMPLETED, FAILED, PENDING(IF more than one start is sent)
+    if [ $requestCompleted = "COMPLETED" ] 
     then
+      echo "Completed"
+      ambariStopAllStatus="COMPLETED"
       finished=1
     fi
 
-    if [ $str == "" ] # if we dont get a value back, the service status inquiry isnt working
+    if [ $requestCompleted = "FAILED" ] 
     then
-      echo "Failed to get service state"
+      echo "Failed"
       finished=1
     fi
 
-    sleep 3
+
+    sleep 10
   done
+
 }
+
+function ambariStartAll(){
+
+# Since there are a few ways for this to fail that might not be trapped, the default status is set to FAILED
+ambariStartAllStatus="FAILED"
+
+echo "Starting all services"
+startAllServices
+
+# echo "Response: $response"
+
+# Check if the action was accepted
+extractJSONPropertvalue "status"
+stopStatus=$extractedJSONPropertvalue
+
+# If it was accepted get the ID of the async request
+extractJSONPropertvalue "id"
+requestId="$extractedJSONPropertvalue"
+
+finished=0
+echo "Checking status of request: $requestId"
+  while [ $finished -ne 1 ]
+  do
+    
+  # Using the ID get the request details
+  requestStatus $requestId
+
+  # Extract the status from the request details. This is what we would monitor until done. Loop requestStatus while this is "IN_PROGRESS"
+  extractJSONPropertvalue "request_status"
+  requestCompleted="$extractedJSONPropertvalue"
+  
+    # Possible values COMPLETED, FAILED, PENDING(IF more than one start is sent)
+    if [ $requestCompleted = "COMPLETED" ] 
+    then
+      echo "Completed"
+      ambariStartAllStatus="COMPLETED"
+      finished=1
+    fi
+
+    if [ $requestCompleted = "FAILED" ] 
+    then
+      echo "Failed"
+      finished=1
+    fi
+
+
+    sleep 10
+  done
+
+}
+
 
 # End of helper functions
 
@@ -102,15 +200,22 @@ then
     echo "ambari.hive.db.schema.name = $DB_NAME"
     /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST $CLUSTER_NAME hive-site "ambari.hive.db.schema.name" $DB_NAME
 
-    echo "******* Restart HIVE Services"
+    echo "******* Restart All Services"
 
-    ambariServiceStateChange "OOZIE" "STOP"
-    ambariServiceStateChange "HIVE" "STOP"
-    
-    sleep 60 # Sometimes if you start again too quickly after a stop, it wont work. This sleep is a workaround.
-    
-    ambariServiceStateChange "HIVE" "START"
-    ambariServiceStateChange "OOZIE" "START"
+    echo "ambariStopAll begin:"
+    ambariStopAll
+
+    if [ $ambariStopAllStatus = "FAILED" ] 
+        then
+        echo "Retry a second time due to a current bug that stalls Stop All in the Metrics Collector service"
+        ambariStopAll
+        fi
+
+    echo "ambariStopAll final status = $ambariStopAllStatus"
+
+    echo "ambariStartAll begin:"
+    ambariStartAll
+    echo "ambariStartAll final status = $ambariStartAllStatus"
     
     echo "******* Completed customization"
 fi
