@@ -33,7 +33,7 @@ find $TMPDIR -name *.jar | xargs cp -t $DESTDIR
 
 rm -rf $TMPDIR
 
-if [ "x$NODE_TYPE" == "xmaster-management" ]
+if [ "x$NODE_TYPE" == "xmanagement-slave2" ]
 then
     echo "stop and Start Services"
     curl -k -v --user $AMBARI_USER:$AMBARI_PASSWORD -H "X-Requested-By: ambari" -i -X PUT -d '{"RequestInfo": {"context": "Stop All Services via REST"}, "ServiceInfo": {"state":"INSTALLED"}}' https://$AMBARI_HOST:$AMBARI_PORT/api/v1/clusters/$CLUSTER_NAME/services
