@@ -2,11 +2,25 @@
 
 This tutorial is in two steps to help you understand and troubleshoot effectively. The first is to initiate and verify the creation of an uncustomized IAE instance. Then you will use an alternate configuration to create an instance with additional capabilities.
 
+## Command summary
+
+In summary, here are the commands that cover the full service lifecycle for our simple cluster
+
+```
+bx cf create-service IBMAnalyticsEngine lite iae-simple-cluster -c ./cluster-simple.json
+bx cf service iae-simple-cluster
+bx cf create-service-key iae-simple-cluster Credentials1 -c {}
+bx cf service-key iae-simple-cluster Credentials1
+bx cf delete-service-key iae-simple-cluster Credentials1 -f
+bx cf delete-service iae-simple-cluster -f
+
+```
+
 ## Create an uncustomized IAE instance
 
 As part of instance creation you can include the cluster configuration parameters inline in the create command if you wish however to promote reusabiliy and consistency we are using the option to use a configuration file with the cluster configuration in it that could be reused across different creation scenarios. 
 
-For the uncustomized IAE instance the configutation is [cluster-simple.json](cluster-simple.json) and just deploys a single spark compute node.
+For the uncustomized IAE instance the configuration is [cluster-simple.json](cluster-simple.json) and just deploys a single spark compute node.
 
 ```
 {
@@ -15,6 +29,8 @@ For the uncustomized IAE instance the configutation is [cluster-simple.json](clu
     "software_package": "ae-1.0-spark"
 }
 ```
+
+If you wish to create a cluster with both Spark and Hadoop, you can switch to use [cluster-simple-spark-hadoop.json](cluster-simple-spark-hadoop.json) instead.
 
 Assuming you have already performed [Preparing to use the IBM Cloud CLI](ibmcloudlogin.md) initiating creation a cluster is a single command `bx cf create-service IBMAnalyticsEngine ...`
 
@@ -178,17 +194,5 @@ Deleting service iae-simple-cluster in org jdoe123@us.ibm.com / space dev as jdo
 OK
 ```
 
-## Command summary
 
-In summary, here are the commands that cover the full service lifecycle for our simple cluster
-
-```
-bx cf create-service IBMAnalyticsEngine lite iae-simple-cluster -c ./cluster-simple.json
-bx cf service iae-simple-cluster
-bx cf create-service-key iae-simple-cluster Credentials1 -c {}
-bx cf service-key iae-simple-cluster Credentials1
-bx cf delete-service-key iae-simple-cluster Credentials1 -f
-bx cf delete-service iae-simple-cluster -f
-
-```
 

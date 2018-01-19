@@ -1,17 +1,28 @@
 # Using a Compose MySQL instance for an IAE cluster Hive Metastore
 
-The purpose of this customization is to create a new cluster and immediately after creation to change the HIVE Metastore configuration from using a local Derby database to connect to an IBM Cloud hosted Compose MySQL instance. 
+The purpose of this customization is to create a new cluster and immediately after creation to change the HIVE Metastore configuration from using a local Derby database to connect to an IBM Cloud hosted Compose MySQL instance. Formal documentation for this topic can be found [here](https://console.bluemix.net/docs/services/AnalyticsEngine/working-with-hive.html#working-with-hive) 
 
-To complete this change, we will be using Ambari commands to make the configuration changes, to stop and start services and to monitor the progress of those restart actions. 
+This will be done using the [bootstrap-mysql.sh](bootstrap-mysql.sh) script included in this project together with the parameter file [cluster-custom-mysql.json](cluster-custom-mysql.json). 
 
-Formal documentation for this topic can be found [here](https://console.bluemix.net/docs/services/AnalyticsEngine/working-with-hive.html#working-with-hive) 
+## Command summary
 
-As with other customizations in this tutorial there are two elements. The cluster configuration json and the bootstrap script. 
+For quick reuse, these are the commands required for the full lifecycle of our custom cluster. `bx cf create-service` is asynchronous but all other commands can be run without pauses. More background on using these commands can be found [here](createiaeinstances.md)
 
-To ensure that the bootstrap script does not need to be modified for each use, I have parameterized the MySQL database connection parameters in the json `script_params` property. This makes changes to the parameters simpler since the file is local to wherever you run the cluster creation command. It has the added benefit that credentials dont get stored in the URL addressable boostrap script file that could present security concerns.
+```
+bx cf create-service IBMAnalyticsEngine standard-hourly iae-custom-cluster-mysql -c ./cluster-custom-mysql.json
+bx cf service iae-custom-cluster-mysql
+bx cf create-service-key iae-custom-cluster-mysql Credentials1 -c {}
+bx cf service-key iae-custom-cluster-mysql Credentials1
 
+bx cf delete-service-key iae-custom-cluster-mysql Credentials1 -f
+bx cf delete-service iae-custom-cluster-mysql -f
+```
 
-# [cluster-custom-mysql.json](./cluster-custom-mysql.json)
+## The details
+
+### Cluster configuration file
+
+The configuration we are using for the instance creation is [cluster-custom-mysql.json](cluster-custom-mysql.json) which includes a link to the [bootstrap-mysql.sh](bootstrap-mysql.sh) script. 
 
 ```
 {
@@ -34,7 +45,9 @@ To ensure that the bootstrap script does not need to be modified for each use, I
 }
 ```
 
-The script_path points to the url addressable location of the customization script (currently in this github project) that will be run once your cluster has been created. The script_params property has 5 values. The bootstrap script will assign these properties to the following variables.
+To ensure that the bootstrap script does not need to be modified for each use, the MySQL database connection parameters are specified in the json `script_params` property here instead. This makes changes to the parameters simpler since the file is local to wherever you run the cluster creation command. It has the added benefit that credentials dont get stored in the URL addressable boostrap script file that could present security concerns.
+
+The `script_params` property has 5 values. The bootstrap script will assign these properties to the following variables.
 
 ```
 DB_USER_NAME=$1
@@ -67,16 +80,21 @@ So if you use this recommendation your parameters will look like this
 ```
 "script_params": ["admin", "ZCBWXXXXXXMJET", "hive", "sl-us-south-1-portal.13.dblayer.com", "32023"]
 ```
+### Boostrap script
 
-# [bootstrap-mysql.sh](./bootstrap-mysql.sh)
+To make the changes we need to the cluster after it has been created, we need enlist the help of Ambari.
 
-To make the change to the cluster after it has been created, you have to go through Ambari. The first step is to change the neccesary parameters. Then you stop and start the services. 
+Since all actions in the script go through Ambari, it is not critical which node of the cluster they run on but they should only run on one node not all of them. For our purposes we have selected them to run on "management-slave2" with the statement `if [ "x$NODE_TYPE" == "xmanagement-slave2" ]` . The simple reason for this is that, if you use the ssh url from the cluster credentials to connect, this is the node you connect to. Therefore the /var/log on this node will contain the bootstrap script log if you need to debug it.
 
-Since we are setting these parameters using Ambari commands, it is not critical which node of the cluster they run on but they should only run on one node not all of them. For our purposes we have selected them to run on "management-slave2" with the statement `if [ "x$NODE_TYPE" == "xmanagement-slave2" ]` . The simple reason for this is that, if you use the ssh url from the cluster credentials to connect, this is the node you connect to. Therefore the /var/log on this node will contain the bootstrap script log if you need to debug it.
+#### The Ambari parameters
 
-## The Ambari parameters
+The first step in [bootstrap-mysql.sh](bootstrap-mysql.sh) is to change the neccesary HIVE parameters. The following parameters are set using /var/lib/ambari-server/resources/scripts/configs.sh and take the following form:
 
-The following parameters are set using /var/lib/ambari-server/resources/scripts/configs.sh
+```
+/var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_USER -p $AMBARI_PASSWORD -port $AMBARI_PORT -s set $AMBARI_HOST  $CLUSTER_NAME hive-site "<Parameter name>" $DB_CXN_URL
+```
+
+These are the parameters the script changes from their defaults.
 
 | Parameter | Value |
 | --------- | ----- |
@@ -87,29 +105,40 @@ The following parameters are set using /var/lib/ambari-server/resources/scripts/
 
 The ConnectionURL is constructed from the 5 script_params and will look similar to `jdbc:mysql://sl-us-south-1-portal.13.dblayer.com:32023/hive?createDatabaseIfNotExist=true`
 
-## The service restart
-
-To ensure a clean restart and adoption of the changed configuration the script uses helper function `ambariServiceStateChange` to request service stops and starts in the right order and monitors progress before continuing. The sub function waitforservicechange polls the service state every 3 seconds to ensure the target state has been reached.
+#### The service restart
 
 ```
-echo "******* Restart HIVE Services"
+echo "******* Restart All Services"
 
-ambariServiceStateChange "OOZIE" "STOP"
-ambariServiceStateChange "HIVE" "STOP"
-    
-sleep 60 # Sometimes if you start again too quickly after a stop, it wont work. This sleep is a workaround.
-    
-ambariServiceStateChange "HIVE" "START"
-ambariServiceStateChange "OOZIE" "START"
+echo "ambariStopAll begin:"
+ambariStopAll
+
+if [ $ambariStopAllStatus = "FAILED" ] 
+    then
+	    echo "Retry a second time due to a current bug that stalls Stop All in the Metrics Collector service"
+	    ambariStopAll
+   	 fi
+
+echo "ambariStopAll final status = $ambariStopAllStatus"
+
+echo "ambariStartAll begin:"
+ambariStartAll
+echo "ambariStartAll final status = $ambariStartAllStatus"
 ```
 
-If your cluster stays in the Customizing state, you will have to connect to the slave2 node using ssh from the cluster credentials and look at the log file. The file name is a combination of the host name of the node and the process number of the customization script. e.g.
+To ensure a clean restart and adoption of the changed configuration the script uses helper functions request service stops and starts and monitors progress before continuing. Although it may be possible to figure out which individual services need to be restarted in addition to HIVE and its sub components, it is more reliable to restart all Ambari controlled services. 
+
+Starts and stop requests to Ambari are asynchronous so when one of these actions are requested, the response contains a request id. This id can then be used to query the ongoing status of the job until it completes or fails.
+
+Note: At the time of publishing, an Ambari Stop All request will initially fail in the Metrics Collector service. The code currently will retry a second time for this reason.
+
+The service stop usually occurs in less than a minute but the start will take 5 to 10 minutes to complete. If your cluster stays in the Customizing state a lot longer that this, you will have to connect to the slave2 node using the ssh string from the cluster credentials and look at the log file to diagnose. The file name is a combination of the host name of the node and the process number of the customization script. e.g.
 
 ```
 /var/log/chs-pxv-079-mn003.bi.services.us-south.bluemix.net_12756.log
 ```
 
-## Creating the cluster
+### Creating the cluster
 
 Now we have the configuration file and the script it references we construct the `bx cf create-service IBMAnalyticsEngine ...` command
 
@@ -121,7 +150,7 @@ bx cf create-service IBMAnalyticsEngine standard-hourly iae-custom-cluster-mysql
 
 Refer to the Avro example for methods to monitor the creation progress. 
 
-## Verifying Hive metastore customization worked
+### Verifying Hive metastore customization worked
 
 The simplest way to check if all is good is to log in to the Ambari console. Go to the IBM Cloud console to Manage your instance and launch Ambari. Once you connect you will see the health status of the cluster and any alerts requiring your attention. 
 

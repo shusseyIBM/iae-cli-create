@@ -11,7 +11,7 @@
                 "username": "",
                 "password": ""
             },
-            "script_path": "https://raw.githubusercontent.com/shusseyIBM/iae-cli-create/master/bootstrap.sh"
+            "script_path": "https://raw.githubusercontent.com/shusseyIBM/iae-cli-create/master/bootstrap-avro.sh"
         },
         "script_params": []
     }]
