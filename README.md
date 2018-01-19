@@ -1,10 +1,12 @@
 # Creating and customizing the IBM Analytics Engines from a command line
 
-The goal of this tutorial is to help you understand the mechanics of deploying an instance of IAE with customization for your purposes using the IBM Cloud command line. 
+The goal of these tutorials is to help you understand the mechanics of deploying an instance of IAE with or without customization for your purposes using the IBM Cloud command line. 
 
 Once you complete the tutorial, you will be familliar with the steps to create new clusters, validate customizations are applied, diagnose them if needed and delete them when done. Although you will have all the commands needed to manage custom cluster lifecycle, this tutorial does not address automating cluster creation.
 
-Many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. However, there are situations where changes and additions need to be baked into a foundation regardless of what application or experience is using the engine. The methods described here allow you not only to modify an indivitual clusters but to create a repeatable baseline configuration across multiple clusters that will allow you to tear down a cluster between uses and rebuild it when workloads return with exactly the same capabilities and configurations.
+Many customizations can be performed after the instance has been created even dynamically when using it through data science tools like Jupyter notebooks. 
+
+However, there are situations where changes and additions need to be baked into a foundation regardless of what application or experience is using the engine. The methods described here allow you not only to modify an indivitual clusters but to create a repeatable baseline configuration across multiple clusters that will allow you to tear down a cluster between uses and rebuild it when workloads return with exactly the same capabilities and configurations.
 
 ## Your IBM Cloud organization
 
@@ -26,9 +28,11 @@ Follow the instructions [here](ibmcloudlogin.md) to set up your workstation, log
 
 ## Creating standard and custom IAE clusters
 
-Once you are connected [this tutorial](createiaeinstances.md) will guide you through the steps to create repeatable IAE instances using the IBM Cloud Command Line Interface and through it, the Cloud Foundry CLI.
+Once you have your workstation configured and connected to the IBM Cloud you are ready to create IAE clusters
 
-Now you know the basics you can try different customizations
+[Create IAE instances from the command line](createiaeinstances.md) will guide you through the steps to create repeatable IAE instances using configuration options.
+
+Now you know the basics you can try different customizations.
 
 [Create a custom IAE instance with Avro](createiaeinstancescustomavro.md)
 
