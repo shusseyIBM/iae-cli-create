@@ -148,7 +148,15 @@ If we use the `standard-hourly` plan, name the cluster `iae-custom-cluster-mysql
 bx cf create-service IBMAnalyticsEngine standard-hourly iae-custom-cluster-mysql -c ./cluster-custom-mysql.json
 ```
 
-Refer to the Avro example for methods to monitor the creation progress. 
+## Did the customization work?
+
+Monitor the creation of the cluster using `bx cf service iae-custom-cluster-mysql`. 
+
+The bootstrap script is executed AFTER the cluster creation succeeds. So depending on your customization execution time, you may have to wait some additional time before you can use the cluster. 
+
+The simplest way to monitor this second phase is using the IBM Cloud IAE Dashboard for your instance. The Dashboard will visaully show the status of "Customizing" while this is still pending. 
+
+If you need to monitor progress via the command line, or if it doesnt move to an Active state in a reasonable amout of time, the steps to monitor and debug are provided in the [debugging](bootstrapscriptdebugging.md) page.
 
 ### Verifying Hive metastore customization worked
 

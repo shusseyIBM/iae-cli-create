@@ -36,7 +36,11 @@ Now you know the basics you can try different customizations.
 
 [Create a custom IAE instance with Avro](createiaeinstancescustomavro.md)
 
-[Create a custom IAE instance using a Compose MySQL instance for an IAE cluster Hive Metastore](externalhivemetastore.md)
+[Create a custom IAE instance using a Compose MySQL instance for an IAE cluster Hive Metastore](createiaeinstancesexternalhivemetastore.md)
+
+If you have problems with a bootstrap customization script.
+
+[How to debug your boostrap script](bootstrapscriptdebugging.md)
 
 ## Contact
 Stephen Hussey, IBM, shussey@us.ibm.com
