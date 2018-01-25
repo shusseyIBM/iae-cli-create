@@ -4,7 +4,7 @@ The goal of this repository is to help you get the most from using IBM Analytics
 
 ## Tutorials
 
-[Creating and customizing the IBM Analytics Engines from a command line](customizing-examples/README.md)
+[Creating and customizing the IBM Analytics Engines from a command line](customization-examples/README.md)
 
 ## Resources
 
